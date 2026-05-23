@@ -105,7 +105,7 @@ class ReservationService {
 
     const [reservations, total] = await Promise.all([
       query.exec(),
-      countDocuments(filters)
+      Reservation.countDocuments(filters)
     ]);
 
     return {

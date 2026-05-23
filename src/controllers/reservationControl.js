@@ -1,6 +1,6 @@
 // src/controllers/reservationController.js
 import reservationService from '../services/reservationService.js';
-import apiResponse from '../utils/ApiResponse.js';
+import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 class ReservationController {
@@ -45,7 +45,7 @@ class ReservationController {
       sort: { 'reservationDetails.date': 1 }
     });
     
-    return success(res, 'Reservas listadas com sucesso', result);
+    return ApiResponse.success(res, 'Reservas listadas com sucesso', result);
   });
 
   /**

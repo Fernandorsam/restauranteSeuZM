@@ -298,7 +298,7 @@ class AuthService {
 
     const [users, total] = await Promise.all([
       query.lean(),
-      countDocuments(filters),
+      User.countDocuments(filters),
     ]);
 
     return {
@@ -313,7 +313,7 @@ class AuthService {
   }
 
   async getUserById(userId) {
-    const user = await findById(userId);
+    const user = await User.findById(userId);
     if (!user) throw new ApiError(404, 'Usuário não encontrado');
     return user;
   }
@@ -326,7 +326,7 @@ class AuthService {
       if (data[key] !== undefined) updates[key] = data[key];
     }
 
-    const user = await findByIdAndUpdate(userId, updates, {
+    const user = await User.findByIdAndUpdate(userId, updates, {
       new: true,
       runValidators: true,
     });
@@ -337,15 +337,15 @@ class AuthService {
   }
 
   async deleteUser(userId) {
-    const user = await findById(userId);
+    const user = await User.findById(userId);
     if (!user) throw new ApiError(404, 'Usuário não encontrado');
 
-    await findByIdAndDelete(userId);
+    await User.findByIdAndDelete(userId);
     business('Admin removeu usuário permanentemente', { userId });
   }
 
   async changeUserRole(userId, role, permissions = []) {
-    const user = await findById(userId);
+    const user = await User.findById(userId);
     if (!user) throw new ApiError(404, 'Usuário não encontrado');
 
     user.role = role;
