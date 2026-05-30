@@ -8,9 +8,8 @@ import { info as _info, error as _error } from '../middlewares/logger.js';
 class EmailService {
   constructor() {
     this.transporter = createTransport({
-      host: EMAIL_HOST,
-      port: EMAIL_PORT,
-      secure: false,
+     host: EMAIL_HOST,
+      port: EMAIL_PORT, 
       auth: {
         user: EMAIL_USER,
         pass: EMAIL_PASS

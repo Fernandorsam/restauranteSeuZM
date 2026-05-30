@@ -1,11 +1,11 @@
 // src/services/authService.js
 
-import { createHash } from 'crypto';
-import User from '../models/User.js';
-import emailService from './emailService.js';
-import { business, info } from '../middlewares/logger.js';
-import ApiError from '../utils/ApiError.js';
-import { FRONTEND_URL } from '../config/environment.js';
+import { createHash } from "crypto";
+import User from "../models/User.js";
+import emailService from "./emailService.js";
+import { business, info } from "../middlewares/logger.js";
+import ApiError from "../utils/ApiError.js";
+import { FRONTEND_URL } from "../config/environment.js";
 
 class AuthService {
   /**
@@ -15,10 +15,15 @@ class AuthService {
    * @returns {Promise<{ user, token }>}
    */
   async register(data) {
+    if (!data || !data.email) {
+      throw new ApiError(400, "Dados de registro inválidos ou ausentes");
+    }
     // Verificar se email já existe
-    const existingUser = await User.findOne({ email: data.email.toLowerCase() });
+    const existingUser = await User.findOne({
+      email: data.email.toLowerCase(),
+    });
     if (existingUser) {
-      throw new ApiError(409, 'E-mail já cadastrado');
+      throw new ApiError(409, "E-mail já cadastrado");
     }
 
     // Criar usuário (role fixo como 'customer')
@@ -27,7 +32,7 @@ class AuthService {
       email: data.email,
       password: data.password,
       phone: data.phone,
-      role: 'customer',
+      role: "customer",
     });
 
     // Gerar token de verificação de e-mail
@@ -40,7 +45,10 @@ class AuthService {
     // Gerar token de acesso
     const token = user.generateAuthToken();
 
-    business('Novo usuário registrado', { userId: user._id, email: user.email });
+    business("Novo usuário registrado", {
+      userId: user._id,
+      email: user.email,
+    });
 
     return { user, token };
   }
@@ -54,16 +62,19 @@ class AuthService {
   async login(email, password) {
     const user = await User.findByEmailWithPassword(email.toLowerCase());
     if (!user) {
-      throw new ApiError(401, 'Credenciais inválidas');
+      throw new ApiError(401, "Credenciais inválidas");
     }
 
     if (!user.isActive) {
-      throw new ApiError(401, 'Conta desativada. Entre em contato com o suporte.');
+      throw new ApiError(
+        401,
+        "Conta desativada. Entre em contato com o suporte.",
+      );
     }
 
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      throw new ApiError(401, 'Credenciais inválidas');
+      throw new ApiError(401, "Credenciais inválidas");
     }
 
     // Atualizar último login
@@ -75,7 +86,7 @@ class AuthService {
     const refreshToken = user.generateRefreshToken();
     await user.save({ validateBeforeSave: false });
 
-    business('Login realizado', { userId: user._id, email: user.email });
+    business("Login realizado", { userId: user._id, email: user.email });
 
     return { user, token, refreshToken };
   }
@@ -87,15 +98,19 @@ class AuthService {
    */
   async refreshAccessToken(refreshTokenValue) {
     if (!refreshTokenValue) {
-      throw new ApiError(401, 'Refresh token não fornecido');
+      throw new ApiError(401, "Refresh token não fornecido");
     }
 
-    const hashedToken = createHash('sha256').update(refreshTokenValue).digest('hex');
+    const hashedToken = createHash("sha256")
+      .update(refreshTokenValue)
+      .digest("hex");
 
     // Buscar usuário pelo refresh token
-    const user = await User.findOne({ refreshToken: hashedToken }).select('+refreshToken');
+    const user = await User.findOne({ refreshToken: hashedToken }).select(
+      "+refreshToken",
+    );
     if (!user) {
-      throw new ApiError(401, 'Refresh token inválido');
+      throw new ApiError(401, "Refresh token inválido");
     }
 
     // Invalidar refresh token atual (rotação)
@@ -106,7 +121,7 @@ class AuthService {
     const newRefreshToken = user.generateRefreshToken();
     await user.save({ validateBeforeSave: false });
 
-    info('Refresh token rotacionado', { userId: user._id });
+    info("Refresh token rotacionado", { userId: user._id });
 
     return { token, newRefreshToken };
   }
@@ -116,7 +131,7 @@ class AuthService {
    * @param {string} userId
    */
   async logout(userId) {
-    const user = await User.findById(userId).select('+refreshToken');
+    const user = await User.findById(userId).select("+refreshToken");
     if (user) {
       user.refreshToken = undefined;
       await user.save({ validateBeforeSave: false });
@@ -128,7 +143,7 @@ class AuthService {
    * @param {string} plainToken - token recebido por e-mail
    */
   async verifyEmail(plainToken) {
-    const hashedToken = createHash('sha256').update(plainToken).digest('hex');
+    const hashedToken = createHash("sha256").update(plainToken).digest("hex");
 
     const user = await User.findOne({
       emailVerificationToken: hashedToken,
@@ -136,7 +151,7 @@ class AuthService {
     });
 
     if (!user) {
-      throw new ApiError(400, 'Token de verificação inválido ou expirado');
+      throw new ApiError(400, "Token de verificação inválido ou expirado");
     }
 
     // Marcar como verificado
@@ -145,7 +160,7 @@ class AuthService {
     user.emailVerificationExpire = undefined;
     await user.save({ validateBeforeSave: false });
 
-    business('E-mail verificado', { userId: user._id, email: user.email });
+    business("E-mail verificado", { userId: user._id, email: user.email });
   }
 
   /**
@@ -160,15 +175,17 @@ class AuthService {
     }
 
     if (user.isVerified) {
-      throw new ApiError(400, 'E-mail já foi verificado');
+      throw new ApiError(400, "E-mail já foi verificado");
     }
 
     // Gerar novo token
     const verificationToken = user.generateEmailVerificationToken();
     await user.save({ validateBeforeSave: false });
 
+  
+
     await this.#sendVerificationEmail(user, verificationToken);
-    info('E-mail de verificação reenviado', { userId: user._id });
+    info("E-mail de verificação reenviado", { userId: user._id });
   }
 
   /**
@@ -186,7 +203,7 @@ class AuthService {
     await user.save({ validateBeforeSave: false });
 
     await this.#sendPasswordResetEmail(user, resetToken);
-    business('Solicitação de reset de senha', { userId: user._id });
+    business("Solicitação de reset de senha", { userId: user._id });
   }
 
   /**
@@ -195,7 +212,7 @@ class AuthService {
    * @param {string} newPassword
    */
   async resetPassword(plainToken, newPassword) {
-    const hashedToken = createHash('sha256').update(plainToken).digest('hex');
+    const hashedToken = createHash("sha256").update(plainToken).digest("hex");
 
     const user = await User.findOne({
       passwordResetToken: hashedToken,
@@ -203,7 +220,7 @@ class AuthService {
     });
 
     if (!user) {
-      throw new ApiError(400, 'Token inválido ou expirado');
+      throw new ApiError(400, "Token inválido ou expirado");
     }
 
     // Atualizar senha (o middleware pre-save fará o hash)
@@ -212,7 +229,7 @@ class AuthService {
     user.passwordResetExpire = undefined;
     await user.save();
 
-    business('Senha redefinida', { userId: user._id });
+    business("Senha redefinida", { userId: user._id });
   }
 
   /**
@@ -221,7 +238,7 @@ class AuthService {
    */
   async getProfile(userId) {
     const user = await User.findById(userId);
-    if (!user) throw new ApiError(404, 'Usuário não encontrado');
+    if (!user) throw new ApiError(404, "Usuário não encontrado");
     return user;
   }
 
@@ -231,7 +248,7 @@ class AuthService {
    * @param {object} data
    */
   async updateProfile(userId, data) {
-    const allowedUpdates = ['name', 'phone', 'avatar'];
+    const allowedUpdates = ["name", "phone", "avatar"];
     const updates = {};
     for (const key of allowedUpdates) {
       if (data[key] !== undefined) updates[key] = data[key];
@@ -242,8 +259,8 @@ class AuthService {
       runValidators: true,
     });
 
-    if (!user) throw new ApiError(404, 'Usuário não encontrado');
-    business('Perfil atualizado', { userId: user._id });
+    if (!user) throw new ApiError(404, "Usuário não encontrado");
+    business("Perfil atualizado", { userId: user._id });
     return user;
   }
 
@@ -254,11 +271,11 @@ class AuthService {
    * @param {string} newPassword
    */
   async changePassword(userId, currentPassword, newPassword) {
-    const user = await User.findById(userId).select('+password');
-    if (!user) throw new ApiError(404, 'Usuário não encontrado');
+    const user = await User.findById(userId).select("+password");
+    if (!user) throw new ApiError(404, "Usuário não encontrado");
 
     const isMatch = await user.comparePassword(currentPassword);
-    if (!isMatch) throw new ApiError(401, 'Senha atual incorreta');
+    if (!isMatch) throw new ApiError(401, "Senha atual incorreta");
 
     user.password = newPassword;
     // Invalidar tokens de reset e refresh por segurança
@@ -267,7 +284,7 @@ class AuthService {
     user.refreshToken = undefined;
     await user.save();
 
-    business('Senha alterada', { userId: user._id });
+    business("Senha alterada", { userId: user._id });
   }
 
   /**
@@ -276,13 +293,13 @@ class AuthService {
    */
   async deleteAccount(userId) {
     const user = await User.findById(userId);
-    if (!user) throw new ApiError(404, 'Usuário não encontrado');
+    if (!user) throw new ApiError(404, "Usuário não encontrado");
 
     user.isActive = false;
     user.email = `${user.email}_deleted_${Date.now()}`; // libera e-mail para novo cadastro
     await user.save({ validateBeforeSave: false });
 
-    business('Conta desativada', { userId: user._id });
+    business("Conta desativada", { userId: user._id });
   }
 
   // ==========================================
@@ -314,13 +331,19 @@ class AuthService {
 
   async getUserById(userId) {
     const user = await User.findById(userId);
-    if (!user) throw new ApiError(404, 'Usuário não encontrado');
+    if (!user) throw new ApiError(404, "Usuário não encontrado");
     return user;
   }
 
   async updateUser(userId, data) {
     // Restringir campos que podem ser alterados pelo admin
-    const allowedUpdates = ['name', 'phone', 'avatar', 'isActive', 'permissions'];
+    const allowedUpdates = [
+      "name",
+      "phone",
+      "avatar",
+      "isActive",
+      "permissions",
+    ];
     const updates = {};
     for (const key of allowedUpdates) {
       if (data[key] !== undefined) updates[key] = data[key];
@@ -331,28 +354,28 @@ class AuthService {
       runValidators: true,
     });
 
-    if (!user) throw new ApiError(404, 'Usuário não encontrado');
-    business('Admin atualizou usuário', { userId: user._id });
+    if (!user) throw new ApiError(404, "Usuário não encontrado");
+    business("Admin atualizou usuário", { userId: user._id });
     return user;
   }
 
   async deleteUser(userId) {
     const user = await User.findById(userId);
-    if (!user) throw new ApiError(404, 'Usuário não encontrado');
+    if (!user) throw new ApiError(404, "Usuário não encontrado");
 
     await User.findByIdAndDelete(userId);
-    business('Admin removeu usuário permanentemente', { userId });
+    business("Admin removeu usuário permanentemente", { userId });
   }
 
   async changeUserRole(userId, role, permissions = []) {
     const user = await User.findById(userId);
-    if (!user) throw new ApiError(404, 'Usuário não encontrado');
+    if (!user) throw new ApiError(404, "Usuário não encontrado");
 
     user.role = role;
     user.permissions = permissions;
     await user.save();
 
-    business('Papel de usuário alterado', { userId, newRole: role });
+    business("Papel de usuário alterado", { userId, newRole: role });
     return user;
   }
 
@@ -376,7 +399,7 @@ class AuthService {
 
     await emailService.sendEmail({
       to: user.email,
-      subject: 'Verifique seu e-mail - Seu Zé & Seu Mané',
+      subject: "Verifique seu e-mail - Seu Zé & Seu Mané",
       html,
     });
   }
@@ -398,7 +421,7 @@ class AuthService {
 
     await emailService.sendEmail({
       to: user.email,
-      subject: 'Redefinição de senha - Seu Zé & Seu Mané',
+      subject: "Redefinição de senha - Seu Zé & Seu Mané",
       html,
     });
   }

@@ -38,6 +38,8 @@ class AuthController {
    *         description: Dados inválidos
    */
   register = asyncHandler(async (req, res) => {
+ console.log('req.body:>>>>>', req.body);
+
     const { user, token } = await authService.register(req.body);
     return ApiResponse.created(res, 'Registro realizado com sucesso. Verifique seu e-mail.', {
       user: user.toPublicProfile(),
