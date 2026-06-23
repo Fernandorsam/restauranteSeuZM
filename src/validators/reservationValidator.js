@@ -87,7 +87,6 @@ const checkAvailability = Joi.object({
   
   time: Joi.string()
     .pattern(/^\d{2}:\d{2}$/)
-    .required()
     .messages({
       'string.pattern.base': 'Horário deve estar no formato HH:MM',
       'any.required': 'Horário é obrigatório'
@@ -96,11 +95,14 @@ const checkAvailability = Joi.object({
   guests: Joi.number()
     .integer()
     .min(1)
-    .required()
     .messages({
       'number.min': 'Mínimo de {#limit} convidado',
       'any.required': 'Número de convidados é obrigatório'
     })
-});
+})
+  .and('time', 'guests')
+  .messages({
+    'object.and': 'Horario e numero de convidados devem ser informados juntos'
+  });
 
 export {create, checkAvailability};

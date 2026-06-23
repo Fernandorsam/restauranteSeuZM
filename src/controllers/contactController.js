@@ -1,4 +1,3 @@
-// src/controllers/contactController.js
 
 import contactService from '../services/contactService.js';
 import apiResponse from '../utils/ApiResponse.js';
@@ -78,13 +77,13 @@ class ContactController {
     const filters = {};
     if (status) filters.status = status;
 
-    const result = await getContacts(filters, {
+    const result = await contactService.getContacts(filters, {
       page: parseInt(page) || 1,
       limit: parseInt(limit) || 10,
       sort: { createdAt: -1 } // mais recentes primeiro
     });
 
-    return paginated(res, 'Contatos listados com sucesso', result);
+    return apiResponse.paginated(res, 'Contatos listados com sucesso', result);
   });
 
   /**
@@ -108,13 +107,13 @@ class ContactController {
    *         description: Contato não encontrado
    */
   getById = asyncHandler(async (req, res) => {
-    const contact = await getContactById(req.params.id);
+    const contact = await contactService.getContactById(req.params.id);
 
     if (!contact) {
-      return notFound(res, 'Mensagem não encontrada');
+      return apiResponse.notFound(res, 'Mensagem não encontrada');
     }
 
-    return success(res, 'Mensagem encontrada', { contact });
+    return apiResponse.success(res, 'Mensagem encontrada', { contact });
   });
 
   /**
@@ -138,13 +137,13 @@ class ContactController {
    *         description: Contato não encontrado
    */
   delete = asyncHandler(async (req, res) => {
-    const contact = await deleteContact(req.params.id);
+    const contact = await contactService.deleteContact(req.params.id);
 
     if (!contact) {
-      return notFound(res, 'Mensagem não encontrada');
+      return apiResponse.notFound(res, 'Mensagem não encontrada');
     }
 
-    return success(res, 'Mensagem excluída com sucesso');
+    return apiResponse.success(res, 'Mensagem excluída com sucesso');
   });
 
   /**
@@ -168,13 +167,13 @@ class ContactController {
    *         description: Contato não encontrado
    */
   markAsRead = asyncHandler(async (req, res) => {
-    const contact = await markContactAsRead(req.params.id);
+    const contact = await contactService.markContactAsRead(req.params.id);
 
     if (!contact) {
-      return notFound(res, 'Mensagem não encontrada');
+      return apiResponse.notFound(res, 'Mensagem não encontrada');
     }
 
-    return success(res, 'Mensagem marcada como lida', { contact });
+    return apiResponse.success(res, 'Mensagem marcada como lida', { contact });
   });
 }
 

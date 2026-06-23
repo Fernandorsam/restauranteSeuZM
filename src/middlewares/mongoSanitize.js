@@ -36,10 +36,12 @@ const mongoSanitize = (req, res, next) => {
   if (req.query) {
     const sanitizedQuery = { ...req.query };
     sanitize(sanitizedQuery);
-    // Reatribui os valores sanitizados
+    // Reatribui os valores sanitizados corretamente, preservando valores falsy
     Object.keys(req.query).forEach((key) => {
-      if (!sanitizedQuery[key]) {
+      if (!Object.prototype.hasOwnProperty.call(sanitizedQuery, key)) {
         delete req.query[key];
+      } else {
+        req.query[key] = sanitizedQuery[key];
       }
     });
   }

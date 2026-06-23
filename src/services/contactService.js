@@ -1,8 +1,8 @@
 // src/services/contactService.js
 
-import Contact from '../models/Contact.js';
+import Contact from '../models/contact.js';
 import notificationService from './notificationService.js';
-import  sendEmail  from './emailService.js';
+import emailService from './emailService.js';
 import { business, error as _error, info } from '../middlewares/logger.js';
 import ApiError from '../utils/ApiError.js';
 
@@ -215,7 +215,7 @@ class ContactService {
         html: await this.generateCustomerConfirmationHTML(contact)
       };
 
-      await sendEmail(emailPayload);
+      await emailService.sendEmail(emailPayload);
 
       info('E-mail de confirmação enviado para cliente', {
         contactId: contact._id,

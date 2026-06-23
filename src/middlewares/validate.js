@@ -2,11 +2,9 @@
 import ApiError from "../utils/ApiError.js";
 
 const validate = (schema) => {
-  
   return (req, res, next) => {
-   
-    
-    const { error, value } = schema.validate(req.body, {
+    const data = req.method === "GET" ? req.query : req.body;
+    const { error, value } = schema.validate(data, {
       abortEarly: false,
       stripUnknown: true,
       allowUnknown: false,

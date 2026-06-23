@@ -10,7 +10,7 @@
     "debug": "nodemon --inspect server.js",
     "test:watch": "jest --watch",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.cjs",
-    "test:ci": "jest --coverage --config ./jest.config.js",
+    "test:ci": "jest --coverage --config ./jest.config.cjs",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write src/**/*.js",
@@ -18,8 +18,8 @@
     "seed": "node src/seeds/index.js",
     "backup": "node src/scripts/backup.js",
     "analyze-logs": "node src/scripts/analyzeLogs.js",
-    "rotate-logs": "node src/utils/logRotation.js",
-    "clean-logs": "node -e \"require('./src/utils/logRotation').cleanupOldLogs()\""
+    "rotate-logs": "node src/utils/logRotations.js",
+    "clean-logs": "node -e \"require('./src/utils/logRotations').cleanupOldLogs()\""
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

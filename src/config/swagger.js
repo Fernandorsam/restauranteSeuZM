@@ -1,7 +1,6 @@
-// src/config/swagger.js
 import swaggerJsDoc from "swagger-jsdoc";
 import { serve, setup } from "swagger-ui-express";
-import {NODE_ENV} from "./environment.js";
+import { PORT } from "./environment.js";
 
 const swaggerOptions = {
   definition: {
@@ -16,7 +15,7 @@ const swaggerOptions = {
       },
       servers: [
         {
-          url: `http://localhost:${NODE_ENV.PORT}`,
+          url: `http://localhost:${PORT}`,
           description: "Servidor de Desenvolvimento",
         },
       ],

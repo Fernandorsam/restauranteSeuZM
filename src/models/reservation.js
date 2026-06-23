@@ -100,14 +100,14 @@ reservationSchema.virtual('isUpcoming').get(function() {
 });
 
 // Middleware pré-salvamento
-reservationSchema.pre('save', async function(next) {
+reservationSchema.pre('save', async function() {
   if (this.isModified('status') && this.status === 'confirmed') {
     this.confirmedAt = new Date();
   }
   if (this.isModified('status') && this.status === 'cancelled') {
     this.cancelledAt = new Date();
   }
-  next();
+  
 });
 
 // Métodos estáticos

@@ -1,5 +1,5 @@
 // src/services/emailService.js
-import { createTransport } from 'nodemailer';
+import { createTransport} from 'nodemailer';
 import { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS } from '../config/environment.js';
 import { reservationConfirmation, reservationConfirmed,
 reservationCancelled, reservationReminder, contactConfirmation } from '../utils/emailTemplates.js';
@@ -7,9 +7,18 @@ import { info as _info, error as _error } from '../middlewares/logger.js';
 
 class EmailService {
   constructor() {
+    // Default to a no-op transporter in non-production unless explicitly forcing emails.
+    // This prevents test/dev runs from hitting external SMTP limits.
+    if (process.env.FORCE_EMAILS !== 'true' && process.env.NODE_ENV !== 'production') {
+      this.transporter = {
+        sendMail: async (opts) => ({ messageId: 'stubbed-message-id', ...opts })
+      };
+      return;
+    }
+
     this.transporter = createTransport({
-     host: EMAIL_HOST,
-      port: EMAIL_PORT, 
+      host: EMAIL_HOST,
+      port: EMAIL_PORT,
       auth: {
         user: EMAIL_USER,
         pass: EMAIL_PASS
@@ -86,6 +95,8 @@ class EmailService {
     });
   }
 }
+
+
 
 const emailService = new EmailService();
 export default emailService;

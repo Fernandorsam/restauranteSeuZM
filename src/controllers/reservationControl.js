@@ -14,7 +14,7 @@ class ReservationController {
   create = asyncHandler(async (req, res) => {
     const reservation = await reservationService.createReservation(req.body);
     
-    return created(res, 'Reserva criada com sucesso', {
+    return ApiResponse.created(res, 'Reserva criada com sucesso', {
       reservation,
       message: 'Verifique seu email para confirmar a reserva'
     });
@@ -59,10 +59,10 @@ class ReservationController {
     const reservation = await reservationService.getReservationById(req.params.id);
     
     if (!reservation) {
-      return notFound(res, 'Reserva não encontrada');
+      return ApiResponse.notFound(res, 'Reserva não encontrada');
     }
     
-    return success(res, 'Reserva encontrada', { reservation });
+    return ApiResponse.success(res, 'Reserva encontrada', { reservation });
   });
 
   /**
@@ -75,7 +75,7 @@ class ReservationController {
   confirm = asyncHandler(async (req, res) => {
     const reservation = await reservationService.confirmReservation(req.params.id);
     
-    return success(res, 'Reserva confirmada com sucesso', { reservation });
+    return ApiResponse.success(res, 'Reserva confirmada com sucesso', { reservation });
   });
 
   /**
@@ -92,7 +92,7 @@ class ReservationController {
       reason
     );
     
-    return success(res, 'Reserva cancelada com sucesso', { reservation });
+    return ApiResponse.success(res, 'Reserva cancelada com sucesso', { reservation });
   });
 
   /**
@@ -104,14 +104,16 @@ class ReservationController {
    */
   checkAvailability = asyncHandler(async (req, res) => {
     const { date, time, guests } = req.query;
+
+    const availability = time && guests
+      ? await reservationService.checkAvailability(
+        new Date(date),
+        time,
+        parseInt(guests, 10)
+      )
+      : await reservationService.getAvailabilityByDate(new Date(date));
     
-    const availability = await reservationService.checkAvailability(
-      new Date(date),
-      time,
-      parseInt(guests)
-    );
-    
-    return success(res, 'Disponibilidade verificada', availability);
+    return ApiResponse.success(res, 'Disponibilidade verificada', availability);
   });
 }
 

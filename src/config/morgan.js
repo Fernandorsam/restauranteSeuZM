@@ -1,4 +1,4 @@
-// src/config/morgan.js
+
 import morgan from 'morgan';
 import { http } from '../middlewares/logger.js';
 

@@ -1,4 +1,4 @@
-// src/controllers/authController.js
+
 
 import authService  from '../services/authService.js';
 import ApiResponse from '../utils/ApiResponse.js';

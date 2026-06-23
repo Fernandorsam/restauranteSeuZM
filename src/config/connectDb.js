@@ -1,10 +1,10 @@
-// src/config/database.js
 import mongoose from 'mongoose';
 import { info, error as _error, warn } from '../middlewares/logger.js';
+import { MONGODB_URI } from './environment.js';
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    const conn = await mongoose.connect(MONGODB_URI);
     
     info(`MongoDB conectado: ${conn.connection.host}`);
     
@@ -17,6 +17,14 @@ const connectDB = async () => {
       warn('MongoDB desconectado');
     });
 
+
+
+
+
+
+
+
+    
   } catch (error) {
     _error('Erro ao conectar MongoDB:', error);
     process.exit(1);

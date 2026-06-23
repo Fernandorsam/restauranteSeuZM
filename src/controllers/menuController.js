@@ -1,4 +1,3 @@
-// src/controllers/menuController.js
 
 import menuService from '../services/menuService.js';
 import ApiResponse from '../utils/ApiResponse.js';

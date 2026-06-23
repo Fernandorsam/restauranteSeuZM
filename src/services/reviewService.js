@@ -1,6 +1,7 @@
 // src/services/reviewService.js
 
-import menuItem from '../models/menuItens.js';
+import Review from '../models/review.js';
+import MenuItem from '../models/menuItens.js';
 import ApiError from '../utils/ApiError.js';
 import { business, error as _error } from '../middlewares/logger.js';
 import notificationService from './notificationService.js'; 
@@ -15,21 +16,21 @@ class ReviewService {
   async createReview(userId, data) {
     // Verificar se o item existe (se item for informado)
     if (data.item) {
-      const menuItem = await menuItem.findById(data.item);
-      if (!menuItem) {
+      const item = await MenuItem.findById(data.item);
+      if (!item) {
         throw new ApiError(404, 'Item do cardápio não encontrado');
       }
     }
 
     // Impedir avaliação duplicada (um usuário só pode avaliar um item uma vez, se item for especificado)
     if (data.item) {
-      const existing = await menuItem.findOne({ user: userId, item: data.item });
+      const existing = await Review.findOne({ user: userId, item: data.item });
       if (existing) {
         throw new ApiError(400, 'Você já avaliou este item. Edite sua avaliação existente.');
       }
     }
 
-    const review = await create({
+    const review = await Review.create({
       user: userId,
       item: data.item || null,
       rating: data.rating,
@@ -63,7 +64,7 @@ class ReviewService {
   async getReviews(filters = {}, options = {}) {
     const { page = 1, limit = 10 } = options;
 
-    const query = menuItem.find(filters)
+    const query = Review.find(filters)
       .populate('user', 'name avatar')
       .populate('item', 'name slug images')
       .sort({ createdAt: -1 })
@@ -72,7 +73,7 @@ class ReviewService {
 
     const [reviews, total] = await Promise.all([
       query.lean(),
-      countDocuments(filters)
+      Review.countDocuments(filters)
     ]);
 
     return {
@@ -97,7 +98,7 @@ class ReviewService {
     const match = { status: 'approved' };
     if (itemId) match.item = itemId;
 
-    const stats = await aggregate([
+    const stats = await Review.aggregate([
       { $match: match },
       {
         $group: {
@@ -140,7 +141,7 @@ class ReviewService {
    * @returns {Promise<Object>} review atualizada
    */
   async updateReview(reviewId, currentUser, data) {
-    const review = await findById(reviewId);
+    const review = await Review.findById(reviewId);
     if (!review) {
       throw new ApiError(404, 'Avaliação não encontrada');
     }
@@ -175,7 +176,7 @@ class ReviewService {
    * @param {object} currentUser
    */
   async deleteReview(reviewId, currentUser) {
-    const review = await findById(reviewId);
+    const review = await Review.findById(reviewId);
     if (!review) {
       throw new ApiError(404, 'Avaliação não encontrada');
     }
@@ -184,7 +185,7 @@ class ReviewService {
       throw new ApiError(403, 'Você não tem permissão para excluir esta avaliação');
     }
 
-    await findByIdAndDelete(reviewId);
+    await Review.findByIdAndDelete(reviewId);
 
     // Recalcular média do item se existir
     if (review.item) {
@@ -204,7 +205,7 @@ class ReviewService {
    * @param {string} responseText
    */
   async respondToReview(reviewId, currentUser, responseText) {
-    const review = await findById(reviewId);
+    const review = await Review.findById(reviewId);
     if (!review) {
       throw new ApiError(404, 'Avaliação não encontrada');
     }
@@ -237,7 +238,7 @@ class ReviewService {
       throw new ApiError(400, 'Status inválido. Use "approved" ou "rejected".');
     }
 
-    const review = await findById(reviewId);
+    const review = await Review.findById(reviewId);
     if (!review) {
       throw new ApiError(404, 'Avaliação não encontrada');
     }
@@ -275,7 +276,7 @@ class ReviewService {
    */
   async #updateMenuItemRating(itemId) {
     try {
-      const stats = await aggregate([
+      const stats = await Review.aggregate([
         { $match: { item: itemId, status: 'approved' } },
         {
           $group: {
@@ -287,13 +288,13 @@ class ReviewService {
       ]);
 
       if (stats.length > 0) {
-        await findByIdAndUpdate(itemId, {
+        await MenuItem.findByIdAndUpdate(itemId, {
           averageRating: Math.round(stats[0].averageRating * 10) / 10,
           numberOfReviews: stats[0].numberOfReviews
         });
       } else {
         // Nenhuma avaliação aprovada, zerar
-        await findByIdAndUpdate(itemId, {
+        await MenuItem.findByIdAndUpdate(itemId, {
           averageRating: 0,
           numberOfReviews: 0
         });

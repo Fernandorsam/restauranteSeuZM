@@ -3,6 +3,7 @@
 import { Router } from 'express';
 const router = Router();
 import authController  from '../controllers/authController.js';
+import User from '../models/User.js';
 import { protect, authorize } from '../middlewares/auth.js';
 import validate from '../middlewares/validate.js';
 import { register as _register, login as _login,
@@ -116,6 +117,60 @@ router.delete(
   '/me',
   protect,
   authController.deleteMyAccount
+);
+
+// ============================
+// ROTAS DE DEBUG (REMOVER EM PRODUÇÃO)
+// ============================
+
+// Debug: Retornar informações do usuário autenticado
+router.get(
+  '/debug/me',
+  protect,
+  (req, res) => {
+    console.log('🐛 DEBUG /me - Usuário em req.user:');
+    console.log('  - _id:', req.user._id);
+    console.log('  - id:', req.user.id);
+    console.log('  - email:', req.user.email);
+    console.log('  - name:', req.user.name);
+    console.log('  - role:', req.user.role);
+    
+    res.json({
+      success: true,
+      message: 'Debug info',
+      data: {
+        _id: req.user._id,
+        id: req.user.id,
+        email: req.user.email,
+        name: req.user.name,
+        role: req.user.role
+      }
+    });
+  }
+);
+
+// Debug: Verificar se usuário específico existe no banco de dados
+router.post(
+  '/debug/find-by-id',
+  async (req, res) => {
+    try {
+      const { userId } = req.body;
+      console.log('🔍 Procurando usuário com ID:', userId);
+      
+      const user = await User.findById(userId);
+      
+      if (user) {
+        console.log('✅ Usuário encontrado:', user.email);
+        res.json({ success: true, found: true, user: { _id: user._id, email: user.email, name: user.name } });
+      } else {
+        console.log('❌ Usuário NÃO encontrado com esse ID');
+        res.json({ success: true, found: false, message: 'Usuário não encontrado' });
+      }
+    } catch (error) {
+      console.error('Erro ao buscar usuário:', error.message);
+      res.status(400).json({ success: false, error: error.message });
+    }
+  }
 );
 
 // ============================

@@ -21,7 +21,12 @@ export const protect = asyncHandler(async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     
+    console.log('🔐 Token decodificado:', { id: decoded.id, email: decoded.email, role: decoded.role });
+    console.log('🔍 Buscando usuário com ID:', decoded.id, 'Tipo:', typeof decoded.id);
+    
     const user = await User.findById(decoded.id).select('-password');
+    
+    console.log('📊 Usuário encontrado:', user ? `Sim - ${user.email}` : 'NÃO ENCONTRADO');
     
     if (!user) {
       throw new ApiError(401, 'Usuário não encontrado');

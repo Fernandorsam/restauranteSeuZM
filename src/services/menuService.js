@@ -128,7 +128,7 @@ class MenuService {
     const isObjectId = idOrSlug.match(/^[0-9a-fA-F]{24}$/);
     const query = isObjectId ? { _id: idOrSlug } : { slug: idOrSlug };
 
-    const item = await findOne(query)
+    const item = await MenuItem.findOne(query)
       .populate('category', 'name slug description');
 
     if (!item) throw new ApiError(404, 'Item não encontrado');
@@ -228,7 +228,7 @@ class MenuService {
 
     // Verificar categoria se alterada
     if (data.category && data.category !== item.category.toString()) {
-      const category = await _findById(data.category);
+      const category = await Category.findById(data.category);
       if (!category) {
         throw new ApiError(400, 'Categoria inválida');
       }

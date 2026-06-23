@@ -3,6 +3,12 @@
 import emailService from './emailService.js';
 import { warn, info, error as _error, business } from '../middlewares/logger.js';
 import { ADMIN_EMAIL, MANAGER_EMAILS, FRONTEND_URL } from '../config/environment.js';
+import {
+  reservationConfirmation,
+  reservationConfirmed,
+  reservationCancelled,
+  reservationReminder
+} from '../utils/emailTemplates.js';
 
 /**
  * Serviço de Notificações
@@ -36,12 +42,14 @@ class NotificationService {
     // E-mail do administrador (ou lista de e-mails)
     this.adminEmail = ADMIN_EMAIL || 'admin@seuzeeseumane.com.br';
 
-    const managerEmailsEnv =process.env.MANAGER_EMAILS || '';
-    
-    // Lista de e-mails de gerentes que também recebem alertas
-    this.managerEmails = (managerEmailsEnv && typeof managerEmailsEnv === 'string')
-      ? managerEmailsEnv.split(',').map(email => email.trim()).filter(email => email)
-      : [];
+    // Normalizar lista de e-mails de gerentes a partir das configurações
+    // `MANAGER_EMAILS` pode ser exportado como array (do config) ou como string na env.
+    const managerEmailsSource = Array.isArray(MANAGER_EMAILS) ? MANAGER_EMAILS : (process.env.MANAGER_EMAILS || MANAGER_EMAILS || '');
+    this.managerEmails = Array.isArray(managerEmailsSource)
+      ? managerEmailsSource.map(email => String(email).trim()).filter(Boolean)
+      : (typeof managerEmailsSource === 'string' && managerEmailsSource.length > 0
+         ? managerEmailsSource.split(',').map(email => email.trim()).filter(email => email)
+         : []);
   }
 
   /**
@@ -57,7 +65,10 @@ class NotificationService {
         return { success: false, message: `Canal "${channel}" indisponível` };
       }
 
-      const result = await this.channels[channel].service.send(payload);
+      const service = this.channels[channel].service;
+      const result = service.send
+        ? await service.send(payload)
+        : await service.sendEmail(payload);
       
       info(`Notificação enviada via ${channel}`, {
         channel,
@@ -96,7 +107,7 @@ class NotificationService {
     const emailPayload = {
       to: reservation.customer.email,
       subject: 'Reserva Recebida - Seu Zé e Seu Mané',
-      html: emailService.reservationConfirmation(reservation)
+      html: reservationConfirmation(reservation)
     };
 
     // Enviar para cliente
@@ -119,7 +130,7 @@ class NotificationService {
     const emailPayload = {
       to: reservation.customer.email,
       subject: 'Reserva Confirmada - Seu Zé e Seu Mané',
-      html: emailService.reservationConfirmed(reservation)
+      html: reservationConfirmed(reservation)
     };
 
     await this.send('email', emailPayload);
@@ -147,7 +158,7 @@ class NotificationService {
     const emailPayload = {
       to: reservation.customer.email,
       subject: 'Reserva Cancelada - Seu Zé e Seu Mané',
-      html: emailService.reservationCancelled(reservation)
+      html: reservationCancelled(reservation)
     };
 
     await this.send('email', emailPayload);
@@ -167,7 +178,7 @@ class NotificationService {
     const emailPayload = {
       to: reservation.customer.email,
       subject: 'Lembrete de Reserva - Seu Zé e Seu Mané',
-      html: templates.reservationReminder(reservation)
+      html: reservationReminder(reservation)
     };
 
     await this.send('email', emailPayload);
@@ -273,6 +284,25 @@ class NotificationService {
     await this.send('email', {
       to: this.adminEmail,
       subject: `Reserva Cancelada - ${reservation.customer.name}`,
+      html: adminHtml
+    });
+  }
+
+  async notifyAdminNewReview(review) {
+    const adminHtml = `
+      <h2>Nova Avaliação Pendente</h2>
+      <p><strong>Usuário:</strong> ${review.user?.name || review.user || 'Não informado'}</p>
+      <p><strong>Nota:</strong> ${review.rating}</p>
+      <p><strong>Comentário:</strong></p>
+      <blockquote style="background-color:#f9f5f0; padding:15px; border-left:4px solid #8B4513;">
+        ${review.comment}
+      </blockquote>
+      <p>Acesse o painel para aprovar ou rejeitar esta avaliação.</p>
+    `;
+
+    await this.send('email', {
+      to: this.adminEmail,
+      subject: 'Nova Avaliação Pendente',
       html: adminHtml
     });
   }
