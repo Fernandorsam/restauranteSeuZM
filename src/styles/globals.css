@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #8B4513;
+  --secondary-color: #D2691E;
+  --accent-color: #FFD700;
+  --dark-color: #2C1810;
+  --light-color: #FFF8DC;
+  --text-color: #333;
+  --white: #ffffff;
+  --gray: #6c757d;
+  --success: #28a745;
+  --danger: #dc3545;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-padding {
+  padding: 100px 0;
+}
+
+.btn {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-outline:hover {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+/* Animações */
+.fade-in {
+  animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: var(--dark-color);
+}
+
+.loading-logo {
+  font-size: 3rem;
+  color: var(--accent-color);
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 20px;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--accent-color);
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+/* Auth Forms */
+.auth-form {
+  max-width: 450px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.auth-form h2 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.auth-form .subtitle {
+  text-align: center;
+  color: var(--gray);
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--dark-color);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn-sm {
+  padding: 8px 20px;
+  font-size: 14px;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 20px;
+  color: var(--gray);
+}
+
+.auth-link a {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.auth-link a:hover {
+  color: var(--secondary-color);
+}
+
+/* User menu na navbar */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--dark-color);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Navbar.css - adicione ao final */
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--dark-color);
+  font-size: 14px;
+}
+
+.btn-sm {
+  padding: 8px 20px;
+  font-size: 14px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-outline:hover {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .nav-actions {
+    display: none; /* Esconde ações desktop no mobile */
+  }
+  
+  .mobile-only {
+    display: block; /* Mostra links de auth no menu mobile */
+  }
+}
