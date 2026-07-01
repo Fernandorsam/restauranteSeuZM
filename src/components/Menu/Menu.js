@@ -1,8 +1,8 @@
 // components/Menu/Menu.js
-import React, { useState } from 'react';
+import React,{ useState} from 'react';
 import { motion } from 'framer-motion';
 import { FaStar, FaHeart } from 'react-icons/fa';
-import './Menu.css';
+import { Link } from 'react-router-dom';
 
 const menuItems = [
   {

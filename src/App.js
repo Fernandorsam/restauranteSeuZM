@@ -8,19 +8,19 @@ import "aos/dist/aos.css";
 import "./styles/globals.css";
 
 // Context
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext.jsx";
 
 // Componentes
-import Navbar from "./components/Navbar/Navbar";
-import Footer from "./components/Footer/Footer";
-import Loading from "./components/Loading/Loading";
+import Navbar from "./components/Navbar/Navbar.js";
+import Footer from "./components/Footer/Footer.js";
+// import Loading from "./components/Loading/Loading.js";
 
 // Páginas
-import Home from "./pages/Home";
-import MenuPage from "./pages/MenuPage";
-import ReservationPage from "./pages/ReservationPage";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Home from "./pages/Home.js";
+// import MenuPage from "./pages/MenuPage.js";
+// import ReservationPage from "./pages/ReservationPage.js";
+import Login from "./pages/Login.js";
+// import Register from "./pages/Register.js";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return <Loading />;
+    // return <Loading />;
   }
 
   return (
@@ -49,10 +49,10 @@ function App() {
           <AnimatePresence mode="wait">
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/menu" element={<MenuPage />} />
-              <Route path="/reservas" element={<ReservationPage />} />
+              {/* <Route path="/menu" element={<MenuPage />} /> */}
+              {/* <Route path="/reservas" element={<ReservationPage />} /> */}
               <Route path="/login" element={<Login />} />
-              <Route path="/registro" element={<Register />} />
+              {/* <Route path="/registro" element={<Register />} /> */}
             </Routes>
           </AnimatePresence>
           <Footer />

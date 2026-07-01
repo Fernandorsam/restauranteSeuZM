@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Hero from '../components/Hero/Hero.js';
 import Menu from '../components/Menu/Menu.js';
-import About from '../components/About/About';
+// import About from '../components/About/About.js';
 import Gallery from '../components/Gallery/Gallery.js';
 // import Testimonials from '../components/Testimonials/Testimonials';
 import Contact from '../components/Contact/Contact.js';
@@ -18,7 +18,7 @@ const Home = () => {
     >
       <Hero />
       <Menu />
-      <About />
+      {/* <About /> */}
       <Gallery />
       {/* <Testimonials /> */}
       <Contact />

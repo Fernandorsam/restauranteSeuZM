@@ -5,7 +5,7 @@ import emailjs from '@emailjs/browser';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaPaperPlane } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './Contact.css';
+
 
 const Contact = () => {
   const [formData, setFormData] = useState({

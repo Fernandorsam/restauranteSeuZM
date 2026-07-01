@@ -5,8 +5,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './ReservationPage.css';
-
+ 
 const ReservationPage = () => {
   const [formData, setFormData] = useState({
     name: '',

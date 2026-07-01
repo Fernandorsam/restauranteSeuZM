@@ -3,11 +3,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade } from 'swiper/modules';
-import 'swiper/css';
 import 'swiper/css/effect-fade';
 import { Link } from 'react-router-dom';
 import { FaArrowRight, FaUtensils, FaWineGlassAlt } from 'react-icons/fa';
-import './Hero.css';
 
 const Hero = () => {
   const fadeUp = {
